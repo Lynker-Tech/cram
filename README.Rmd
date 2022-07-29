@@ -1,0 +1,57 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# cram
+
+<!-- badges: start -->
+[![Dependencies](https://img.shields.io/badge/dependencies-6/30-orange?style=flat)](#)
+<!-- badges: end -->
+
+The goal of cram is to process output from the Lynker CRAM model.
+
+
+## Installation
+
+You can install the development version of cram from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("mikejohnson51/cram")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(cram)
+
+base_folder       = "~/Downloads/runs"
+
+## basic example code
+(models = parse_directory(base_folder))
+
+cram1 <- process_cram(
+  base_year         = models$base_year[1],
+  model_version     = models$model_version[1],
+  base_folder       = models$base_folder[1],
+)
+
+head(cram1)
+```
+
+```{r}
+plot(cram1$start_date, cram1$inflow_10_flow, type = 'l')
+```
