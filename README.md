@@ -17,7 +17,7 @@ You can install the development version of cram from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("mikejohnson51/cram")
+remotes::install_github("Lynker-Tech/cram")
 ```
 
 ## Example
