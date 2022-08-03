@@ -4,19 +4,10 @@
 \alias{process_cram}
 \title{Process CRAM output}
 \usage{
-process_cram(
-  base_year = 2022,
-  model_version = "v0.464",
-  base_folder = NULL,
-  return_wide = TRUE
-)
+process_cram(model_directory = NULL, return_wide = TRUE)
 }
 \arguments{
-\item{base_year}{notes the year of interest and places this text in a column in the final returned dataframe}
-
-\item{model_version}{notes the version number and places this text in a column in the final returned dataframe*}
-
-\item{base_folder}{highest level directory housing all the model folders}
+\item{model_directory}{dataframe with base_year, model_version, and base_folder columns, indicating the location of a CRAM model folder, a single row from the output dataframe from parse_directory function}
 
 \item{return_wide}{if TRUE, function returns a wide dataset with a column for each header found in the original OUTPUT_SHEET.txt files, otherwise long dataset w/ multiple rows per timestamp}
 }

@@ -38,20 +38,79 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 library(cram)
 
-base_folder       = "~/Downloads/runs"
+base_folder       = "C:/Users/angus/Downloads/runs"
 
 ## basic example code
 (models = parse_directory(base_folder))
 
 cram1 <- process_cram(
-  base_year         = models$base_year[1],
-  model_version     = models$model_version[1],
-  base_folder       = models$base_folder[1],
-)
+            model_directory = models[1, ],
+            return_wide     = TRUE
+          )
 
 head(cram1)
 ```
 
+We can identify the variables in one of processed CRAM output sheets
 ```{r}
-plot(cram1$start_date, cram1$inflow_10_flow, type = 'l')
+output_variables <- get_variables(
+                        cram_df   = cram1,
+                        out_sheet = "south platte",
+                        start     = "2002-01-01",
+                        end       = "2007-01-01"
+                      )
+
+head(output_variables)
 ```
+
+Identify available variables using get_variables(), and use plot_cram() to plot a set of variables for a single model run output sheet 
+```{r}
+# Plot specific variables for a single CRAM model run
+cram_plot <- plot_cram(
+                  cram_df   = cram1,
+                  out_sheet = "south platte",
+                  plot_vars = output_variables$var[56:59],
+                  start     = "2002-01-01",
+                  end       = "2007-01-01"
+                )
+
+cram_plot
+```
+
+Process multiple CRAM model runs and plot together
+```{r}
+# Process 2022 - v0.464 
+cram1 <- process_cram(
+            model_directory = models[1, ],
+            return_wide     = TRUE
+          )
+
+# Process 2025 - v0.464 
+cram2 <- process_cram(
+            model_directory = models[2, ],
+            return_wide     = TRUE
+          )
+
+# Identify variables in model run 1 (cram1)
+output_variables <- get_variables(
+                        cram_df   = cram1,
+                        out_sheet = "arkansas",
+                        start     = "2005-01-01",
+                        end       = "2006-01-01"
+                      )
+
+# Plot specific variables across 2 CRAM model runs
+cram_multi_plot <- plot_multi_cram(
+                        cram_mod1  = cram1,
+                        cram_mod2  = cram2,
+                        out_sheet  = "arkansas",
+                        plot_vars  = output_variables$var[127:130],
+                        start      = "2005-01-01",
+                        end        = "2006-01-01", 
+                        wrap       = FALSE
+                      )
+
+cram_multi_plot
+```
+
+

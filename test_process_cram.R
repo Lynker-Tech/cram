@@ -10,7 +10,7 @@ devtools::build_readme()
 devtools::install_local('.')
 
 ## Examples:
-base_folder       = "~/Downloads/runs"
+base_folder       = "C:/Users/angus/Downloads/runs"
 (models = parse_directory(base_folder))
 
 cram1 <- process_cram(
@@ -21,7 +21,8 @@ cram1 <- process_cram(
 )
 
 
-cram2 <- process_cram2(
+
+cram2 <- process_cram(
   model_version     = "v0.466",
   base_year         = 2025,
   date_convert      = date_convert,
