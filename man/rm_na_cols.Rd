@@ -10,8 +10,8 @@ rm_na_cols(df)
 \item{df}{A dataframe expected to have entire columns filled with NA}
 }
 \value{
-data.frame
+data.frame with NA only columns removed
 }
 \description{
-Remove dataframe columns with only NA in all rows
+Helper function that removes columns with only NA values
 }
