@@ -71,7 +71,6 @@ replace_probs <- function(df, prob_df) {
 #' @importFrom tidyr unnest pivot_longer pivot_wider
 #' @importFrom janitor clean_names
 
-
 process_cram = function(
     model_directory      = NULL,
     return_wide          = TRUE
@@ -172,7 +171,8 @@ process_cram = function(
       show_col_types = FALSE,
       progress       = FALSE
     ) %>%
-      stats::na.omit()
+      dplyr::filter(!is.na(X1)) %>%
+      dplyr::select(X1)
 
     # # column one has each row of data as a single string, split by tabs
     line_lst <- out_tbl$X1[1:nrow(out_tbl)]
