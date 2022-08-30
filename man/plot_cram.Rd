@@ -5,23 +5,23 @@
 \title{Plots desired variables from processed CRAM output sheets}
 \usage{
 plot_cram(
-  cram_df,
-  out_sheet = "SOUTH_PLATTE",
+  cram_df = NULL,
   plot_vars = NULL,
   start = "1900-01-01",
-  end = "2099-01-01"
+  end = "2099-01-01",
+  wrap = FALSE
 )
 }
 \arguments{
 \item{cram_df}{data.frame containing Processed CRAM output files, output from process_cram function w/ wide = TRUE}
 
-\item{out_sheet}{character string, name of the output sheet that variables should be returned for, if exact output sheet name is not given a fuzzy match will be returned.}
+\item{plot_vars}{character vector containing the names of columns in the processed CRAM dataframe that should be plotted. Default is NULL and will plot the first 2 variables}
 
-\item{plot_vars}{character vector containing the names of columns in the processed CRAM output sheet of interest, available columns can be found by using the get_variables function}
+\item{start}{character string, start date YYYY-MM-DD}
 
-\item{start}{character string, start date year-month-day}
+\item{end}{character string, end date YYYY-MM-DD}
 
-\item{end}{character string, end date year-month-day}
+\item{wrap}{logical, whether plot should use facet_wrap or facet_grid for plotting. Default is FALSE, uses facet_grid}
 }
 \value{
 ggplot object
