@@ -38,13 +38,13 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 library(cram)
 
-base_folder       = "D:/downloads/runs"
-
+# base_folder       = "D:/downloads/runs/"
+base_folder       = "C:/Users/angus/OneDrive/Desktop/runs/2049 v0.469 0.13"
 ## basic example code
 (models = parse_directory(base_folder))
 
 cram1 <- process_cram(
-            model_directory = models[5, ],
+            model_directory = models[1, ],
             return_wide     = TRUE
           )
 
@@ -65,8 +65,8 @@ Identify available variables using `find_variables()`, and use `plot_cram()` to 
 # Plot specific variables for CRAM model runs
 cram_plot <- plot_cram(
                   cram_df   = cram1,
-                  plot_vars = output_variables$names[12:15],
-                  start     = "2002-01-01",
+                  plot_vars = output_variables$names[17:19],
+                  start     = "2004-01-01",
                   end       = "2007-01-01",
                   wrap      = FALSE
                 )
