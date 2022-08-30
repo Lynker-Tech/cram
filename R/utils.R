@@ -509,6 +509,7 @@ find_variables <- function(
   }
 
 }
+
 #' Plots desired variables from processed CRAM output sheets
 #' @param cram_df data.frame containing Processed CRAM output files, output from process_cram function w/ wide = TRUE
 #' @param plot_vars character vector containing the names of columns in the processed CRAM dataframe that should be plotted. Default is NULL and will plot the first 2 variables
@@ -541,7 +542,7 @@ plot_cram <- function(
 
     plot_vars <- find_variables(df = cram_df) %>%
       .$names %>%
-      .[1:10]
+      .[9:10]
 
   }
 
@@ -555,10 +556,14 @@ plot_cram <- function(
     )
 
   # title case colnames
-  title_vars <- find_variables(cram_sub)
+  title_vars <-
+    cram_sub %>%
+    find_variables() %>%
+    dplyr::filter(!names %in% c("model_scenario", "start_date", "qm"))
 
   # use title case names for plotting
-  names(cram_sub)[4:ncol(cram_sub)] <- title_vars$title_names[4:nrow(title_vars)]
+  names(cram_sub)[4:ncol(cram_sub)] <- title_vars$title_names
+  # names(cram_sub)[4:ncol(cram_sub)] <- title_vars$title_names[4:nrow(title_vars)]
 
   # pivot data longer for plotting
   cram_sub <-
@@ -582,7 +587,7 @@ plot_cram <- function(
       ggplot2::facet_wrap(~name) +
       ggplot2::theme_bw() +
       ggplot2::labs(
-        title    = "Comparing Model Scenarios",
+        title    = "CRAM Model Scenarios",
         x        = "Date",
         y        = "Value",
         col      = "Model Scenario"
@@ -596,7 +601,7 @@ plot_cram <- function(
       ggplot2::facet_grid(name~.) +
       ggplot2::theme_bw() +
       ggplot2::labs(
-        title    = "Comparing Model Scenarios",
+        title    = "CRAM Model Scenarios",
         x        = "Date",
         y        = "Value",
         col      = "Model Scenario"
