@@ -38,20 +38,41 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 library(cram)
 
-base_folder       = "~/Downloads/runs"
+base_folder       = "D:/downloads/runs"
 
 ## basic example code
 (models = parse_directory(base_folder))
 
 cram1 <- process_cram(
-  base_year         = models$base_year[1],
-  model_version     = models$model_version[1],
-  base_folder       = models$base_folder[1],
-)
+            model_directory = models[5, ],
+            return_wide     = TRUE
+          )
 
 head(cram1)
 ```
 
+We can identify the variables in one of processed CRAM output sheets
 ```{r}
-plot(cram1$start_date, cram1$inflow_10_flow, type = 'l')
+output_variables <- find_variables(
+                        df   = cram1
+                      )
+
+head(output_variables, 15)
 ```
+
+Identify available variables using `find_variables()`, and use `plot_cram()` to plot a set of variables for multiple model scenarios after processing CRAM output sheets using `process_cram() `
+```{r}
+# Plot specific variables for CRAM model runs
+cram_plot <- plot_cram(
+                  cram_df   = cram1,
+                  plot_vars = output_variables$names[12:15],
+                  start     = "2002-01-01",
+                  end       = "2007-01-01",
+                  wrap      = FALSE
+                )
+
+cram_plot
+```
+
+
+
