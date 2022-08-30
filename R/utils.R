@@ -13,7 +13,7 @@ tab_vect <- function(vect) {
       nrow = 1, ncol = length(.)
     ) %>%
     as.data.frame() %>%
-    tibble()
+    tibble::tibble()
 
   return(tvect)
 }
@@ -88,9 +88,10 @@ rm_na_cols <- function(df) {
 #' @return a dataframe that has all of the data from the OUTPUT_SHEETS found in the model folder that the function is pointed too.
 #' @export
 #' @importFrom logger log_error log_info
-#' @importFrom dplyr tibble mutate case_when left_join inner_join select relocate bind_rows across last_col all_of `%>%`
+#' @importFrom dplyr mutate case_when left_join inner_join select relocate bind_rows across last_col all_of `%>%`
+#' @importFrom tibble tibble
 #' @importFrom readr read_tsv read_fwf problems
-#' @importFrom stats na.omit setNames
+#' @importFrom stats na.omit setNames step
 #' @importFrom tidyr unnest pivot_longer pivot_wider
 #' @importFrom janitor clean_names
 #' @importFrom purrr reduce
@@ -144,7 +145,7 @@ process_cram = function(
   }
 
   # Paths to base model output sheet .txt files, extract file name
-  file_names <- dplyr::tibble(
+  file_names <- tibble::tibble(
     file      = list.files(
       base_model_dir,
       full.names = FALSE,
@@ -333,7 +334,7 @@ process_cram = function(
 
       # Collect descriptions, parameters, and names to join back w/ processed output sheet
       param_df <-
-        dplyr::tibble(
+        tibble::tibble(
           desc         = desc_vect[-1:-3],
           parameter    = param_vect[!param_vect %in% c("Time", "Time", "Operation")],
           name         = clean_cols[!clean_cols %in% "step"]
@@ -480,8 +481,10 @@ process_cram = function(
 #' @param df data.frame
 #' @return tibble containing the two columns. one column with the names of the columns of input df, and a second column with the column names put into title case
 #' @export
-#' @importFrom dplyr mutate tibble group_by
+#' @importFrom dplyr mutate group_by
+#' @importFrom tibble tibble
 #' @importFrom stringr str_to_title
+#' @importFrom stats na.omit setNames step
 find_variables <- function(
     df = NULL
 ) {
@@ -494,7 +497,7 @@ find_variables <- function(
 
   # make tibble with column names and title read names
   name_df <-
-     dplyr::tibble(
+    tibble::tibble(
        names = names(df)
        ) %>%
      dplyr::mutate(
@@ -517,6 +520,7 @@ find_variables <- function(
 #' @importFrom dplyr filter select mutate
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 aes geom_line facet_wrap facet_grid theme_bw labs
+#' @importFrom stats na.omit setNames step
 plot_cram <- function(
     cram_df   = NULL,
     plot_vars = NULL,
