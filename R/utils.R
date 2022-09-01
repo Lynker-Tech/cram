@@ -110,7 +110,7 @@ process_cram = function(
   # library(tidyverse)
   # library(janitor)
   # library(logger)
-
+  #
   # model_path <- "D:/downloads/runs/2049 v0.469 0.13/"
   # model_directory <- cram::parse_directory(model_path)[1, ]
   # model_directory
@@ -129,7 +129,7 @@ process_cram = function(
     value = TRUE
   )
 
-  logger::log_info("\n\nReading From: {base_folder}/{base_model_folder}")
+  logger::log_info("Reading From: {base_folder}/{base_model_folder}")
 
   # Error if model folder not found
   if(length(base_model_dir) == 0) {
@@ -156,7 +156,7 @@ process_cram = function(
   }
 
   # Paths to base model output sheet .txt files, extract file name
-  file_names <- tibble::tibble(
+  file_names <- data.frame(
     file      = list.files(
       base_model_dir,
       full.names = FALSE,
@@ -194,32 +194,34 @@ process_cram = function(
 
   # empty list to add models to
   model_lst <- list()
-# rm(z, i, model_paths)
-  # z <- 1
+
   # Loop through each model found in parsed directory dataframe
   for (z in 1:length(model_check)) {
 
     # paths to model output sheets
     model_paths <- model_check[[z]]
 
-    logger::log_info("\n\nModel {z} of {length(model_check)}\nModel scenario: {model_paths$model_num[1]}")
+    logger::log_info("Model {z} of {length(model_check)}")
+    logger::log_info("Model scenario: {model_paths$model_num[1]}")
 
     # Empty list to add processed output sheets to at end of for loop
     sheet_lst <- list()
 
-    # i = 1
     # loop through the number of OUTPUT_SHEET.txt files in runs/<modelyear_modelversion> directory, clean and bind all rows
     for (i in 1:nrow(model_paths)) {
-    # for (i in 1:length(base_output_paths)) {
 
-      logger::log_info("\n\nOutput sheet: {model_paths$output_sheet[i]}")
+      logger::log_info("Output sheet: {model_paths$output_sheet[i]}")
 
-      # # Read in output sheet for extracting names later on
-      out_tbl_names <- readr::read_tsv(
-        model_paths$full_path[i],
-        col_names      = FALSE,
-        show_col_types = FALSE,
-        progress       = FALSE
+      suppressWarnings(
+
+        # # Read in output sheet for extracting names later on
+        out_tbl_names <- readr::read_tsv(
+          model_paths$full_path[i],
+          col_names      = FALSE,
+          show_col_types = FALSE,
+          progress       = FALSE
+        )
+
       )
 
       # # See if any problems in read in of data
@@ -233,16 +235,20 @@ process_cram = function(
       # number of rows to skip, when "Step" is seen in column 1, read in data after that
       skiprows <- grep("Step", out_tbl_names$X1)
 
-      # read in dataset and get all data in each row in a single string
-      out_tbl <- readr::read_fwf(
-        file           = model_paths$full_path[i],
-        skip           = skiprows,
-        show_col_types = FALSE,
-        progress       = FALSE
-      ) %>%
-        dplyr::filter(!is.na(X1)) %>%
-        dplyr::select(X1)
+      suppressWarnings(
 
+        # read in dataset and get all data in each row in a single string
+        out_tbl <- readr::read_fwf(
+          file           = model_paths$full_path[i],
+          skip           = skiprows,
+          show_col_types = FALSE,
+          progress       = FALSE
+        ) %>%
+          dplyr::filter(!is.na(X1)) %>%
+          dplyr::select(X1)
+
+
+      )
       # # column one has each row of data as a single string, split by tabs
       line_lst <- out_tbl$X1[1:nrow(out_tbl)]
 
@@ -505,7 +511,7 @@ lookup_table = function(
     value = TRUE
   )
 
-  logger::log_info("\n\nReading From: {base_folder}/{base_model_folder}")
+  logger::log_info("Reading From: {base_folder}/{base_model_folder}")
 
   # Error if model folder not found
   if(length(base_model_dir) == 0) {
@@ -567,6 +573,7 @@ lookup_table = function(
     dplyr::group_by(model_num) %>%
     dplyr::group_split()
 
+  logger::log_info("Generating lookup tables...")
 
   # empty list to add models to
   model_lst <- list()
@@ -577,23 +584,27 @@ lookup_table = function(
     # paths to model output sheets
     model_paths <- model_check[[z]]
 
-    logger::log_info("\n\nModel {z} of {length(model_check)}\nModel scenario: {model_paths$model_num[1]}")
+    logger::log_info("Model {z} of {length(model_check)}")
+    logger::log_info("Model scenario: {model_paths$model_num[1]}")
 
     # Empty list to add processed output sheets to at end of for loop
     sheet_lst <- list()
 
     # loop through the number of OUTPUT_SHEET.txt files in runs/<modelyear_modelversion> directory, clean and bind all rows
     for (i in 1:nrow(model_paths)) {
-      # for (i in 1:length(base_output_paths)) {
 
-      logger::log_info("\n\nOutput sheet: {model_paths$output_sheet[i]}")
+      logger::log_info("Output sheet: {model_paths$output_sheet[i]}")
 
-      # # Read in output sheet for extracting names later on
-      out_tbl_names <- readr::read_tsv(
-        model_paths$full_path[i],
-        col_names      = FALSE,
-        show_col_types = FALSE,
-        progress       = FALSE
+      suppressWarnings(
+
+        # # Read in output sheet for extracting names later on
+        out_tbl_names <- readr::read_tsv(
+          model_paths$full_path[i],
+          col_names      = FALSE,
+          show_col_types = FALSE,
+          progress       = FALSE
+        )
+
       )
 
       # # See if any problems in read in of data
@@ -607,15 +618,19 @@ lookup_table = function(
       # number of rows to skip, when "Step" is seen in column 1, read in data after that
       skiprows <- grep("Step", out_tbl_names$X1)
 
-      # read in dataset and get all data in each row in a single string
-      out_tbl <- readr::read_fwf(
-        file           = model_paths$full_path[i],
-        skip           = skiprows,
-        show_col_types = FALSE,
-        progress       = FALSE
-      ) %>%
-        dplyr::filter(!is.na(X1)) %>%
-        dplyr::select(X1)
+      suppressWarnings(
+
+        # read in dataset and get all data in each row in a single string
+        out_tbl <- readr::read_fwf(
+          file           = model_paths$full_path[i],
+          skip           = skiprows,
+          show_col_types = FALSE,
+          progress       = FALSE
+        ) %>%
+          dplyr::filter(!is.na(X1)) %>%
+          dplyr::select(X1)
+
+      )
 
       # # column one has each row of data as a single string, split by tabs
       line_lst <- out_tbl$X1[1:nrow(out_tbl)]
@@ -685,6 +700,9 @@ lookup_table = function(
 
   # final row bind of all lookup tables across all models
   lookup_df  <- dplyr::bind_rows(model_lst)
+
+  # fix row names
+  row.names(lookup_df) <- 1:nrow(lookup_df)
 
   return(lookup_df)
 

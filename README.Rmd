@@ -35,21 +35,38 @@ remotes::install_github("Lynker-Tech/cram")
 
 This is a basic example which shows you how to solve a common problem:
 
-```{r example}
+```{r parse_example}
 library(cram)
 
-# base_folder       = "D:/downloads/runs/"
-base_folder       = "C:/Users/angus/OneDrive/Desktop/runs/2049 v0.469 0.13"
-## basic example code
-(models = parse_directory(base_folder))
+base_folder  <-  "D:/downloads/runs/2049 v0.469 0.13/"
 
-cram1 <- process_cram(
+## basic example code
+models       <-  cram::parse_directory(base_folder)
+models 
+```
+
+Now that we've located the model directory, we can use the `process_cram()` function to process the output sheets within the model directory
+```{r proc_cram_ex}
+cram1 <- cram::process_cram(
             model_directory = models[1, ],
             return_wide     = TRUE
           )
 
-head(cram1)
+head(cram1, 15)
 ```
+
+<br>
+
+We can also build a lookup table for the output sheets in the model directory using the `lookup_table()` function
+```{r lookup_ex}
+lookup_df <- cram::lookup_table(
+            model_directory = models[1, ]
+          )
+
+head(lookup_df, 15)
+```
+
+<br>
 
 We can identify the variables in one of processed CRAM output sheets
 ```{r}
