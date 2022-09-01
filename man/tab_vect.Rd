@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{tab_vect}
 \alias{tab_vect}
-\title{Seperate tab seperated values and makes a tibble}
+\title{Seperates tab seperated values and format into a dataframe}
 \usage{
 tab_vect(vect)
 }
@@ -13,5 +13,5 @@ tab_vect(vect)
 data.frame
 }
 \description{
-Seperate tab seperated values and makes a tibble
+Seperates tab seperated values and format into a dataframe
 }
