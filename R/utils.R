@@ -1,19 +1,15 @@
-#' Seperate tab seperated values and makes a tibble
+#' Seperates tab seperated values and format into a dataframe
 #' @param vect a vector of values
 #' @return data.frame
 #' @export
-#' @importFrom tibble tibble
 tab_vect <- function(vect) {
-  # vect <- lst[i]
-  # m  <- unlist(strsplit(vect, "\t"))
 
   tvect <-
     unlist(strsplit(vect, "\t")) %>%
     matrix(
       nrow = 1, ncol = length(.)
     ) %>%
-    as.data.frame() %>%
-    tibble::tibble()
+    as.data.frame()
 
   return(tvect)
 }
@@ -23,23 +19,29 @@ tab_vect <- function(vect) {
 #' using readr::read_tsv() then calling problems()
 #' @param df original df
 #' @param prob_df problem df
+#' @param verbose logical, whether messages should output when function is run. Default is FALSE, no messages are printed
 #' @return data.frame
 #' @export
-#' @importFrom logger log_info
 #' @importFrom dplyr mutate across
-replace_probs <- function(df, prob_df) {
+replace_probs <- function(df, prob_df, verbose  = FALSE) {
 
   if(nrow(prob_df) < 1) {
 
-    log_info("No problems!")
+    if(verbose == TRUE) {
+      message("No problems!")
+    }
 
     return(df)
 
   } else {
 
-    log_info("Fixing data in {nrow(prob_df)} rows")
+    if(verbose == TRUE) {
 
-    df <- mutate(df, across(where(is.numeric), as.character))
+      message(paste0("Fixing data in ", nrow(prob_df), "rows"))
+
+    }
+
+    df <- dplyr::mutate(df, dplyr::across(where(is.numeric), as.character))
 
     for (z in 1:nrow(prob_df)) {
 
@@ -88,7 +90,7 @@ rm_na_cols <- function(df) {
 #' @return a dataframe that has all of the data from the OUTPUT_SHEETS found in the model folder that the function is pointed too.
 #' @export
 #' @importFrom logger log_error log_info
-#' @importFrom dplyr mutate case_when left_join inner_join select relocate bind_rows across last_col all_of `%>%`
+#' @importFrom dplyr mutate case_when filter left_join inner_join select relocate bind_rows across last_col all_of `%>%`
 #' @importFrom tibble tibble
 #' @importFrom readr read_tsv read_fwf problems
 #' @importFrom stats na.omit setNames step
@@ -103,6 +105,15 @@ process_cram = function(
   if(is.null(model_directory)) {
     logger::log_error("\n\nmodel_directory input is NULL\nPlease enter a single row from the output dataframe created by using the parse_directory() function")
   }
+
+  # For internally running code for testing
+  # library(tidyverse)
+  # library(janitor)
+  # library(logger)
+
+  # model_path <- "D:/downloads/runs/2049 v0.469 0.13/"
+  # model_directory <- cram::parse_directory(model_path)[1, ]
+  # model_directory
 
   # Retrieve model year, version, and base folder path from single row of model_dirs() ouput
   base_year     <- model_directory$base_year
@@ -183,7 +194,8 @@ process_cram = function(
 
   # empty list to add models to
   model_lst <- list()
-
+# rm(z, i, model_paths)
+  # z <- 1
   # Loop through each model found in parsed directory dataframe
   for (z in 1:length(model_check)) {
 
@@ -195,6 +207,7 @@ process_cram = function(
     # Empty list to add processed output sheets to at end of for loop
     sheet_lst <- list()
 
+    # i = 1
     # loop through the number of OUTPUT_SHEET.txt files in runs/<modelyear_modelversion> directory, clean and bind all rows
     for (i in 1:nrow(model_paths)) {
     # for (i in 1:length(base_output_paths)) {
@@ -260,8 +273,6 @@ process_cram = function(
       # names for data in out
       tbl_names    <- out_tbl_names[name_index, 1:ncol(out)]
 
-
-      # c <- 5
       # error_lst <- list()
 
       # Loop through tbl_names and replace NA column headers w/ --> "empty_{column number}"
@@ -273,37 +284,26 @@ process_cram = function(
 
           tbl_names[,c] <- paste0("empty_", c)
 
-          # error_lst[[c]] <- c
         }
 
       }
 
-      # error_df  <- unlist(error_lst)
-
       # find columns to use to fix broken/missing column headers
       # fix_index <- min(desc_index, param_index, name_index) - 2
-
       # j <- 17
       # for (j in error_df) {
-      #
-      #   message(paste0(j))
-      #
       #   # out_tbl_names[c(1:fix_index), j]
-      #
       #   # string to replace NA/empties with
       #   fix_col   <- out_tbl_names[c(1:fix_index),j] %>%
       #     stats::na.omit() %>%
       #     stats::setNames(c("fix_names")) %>%
       #     dplyr::filter(fix_names != "#N/A")
-      #
       #   # collapse text into new column name
       #   fixed_str <- paste0(tolower(fix_col$fix_names), collapse = "_")
-      #
       #   # replace "empty_" text in tbl_names w/ fixed_str
-      #   tbl_names[, j] <- fixed_str
-      #
-      # }
-      #
+      #   tbl_names[, j] <- fixed_str }
+
+
       # Clean columns by removing special characters & whitespace, replacing w/ underscore
       clean_cols <- gsub(
         '([[:punct:]])|\\s+',
@@ -475,7 +475,220 @@ process_cram = function(
   }
 
 }
+#' Variable Lookup Table for CRAM models
+#' @param model_directory dataframe with base_year, model_version, and base_folder columns, indicating the location of a CRAM model folder, a single row from the output dataframe from parse_directory function
+#' @return dataframe with columns for output_sheet, model_scenario, variable names, descriptions, and parameters
+#' @export
+#' @importFrom logger log_error log_info
+#' @importFrom dplyr mutate case_when filter select relocate bind_rows across last_col all_of `%>%`
+#' @importFrom readr read_tsv read_fwf problems
+#' @importFrom stats na.omit setNames step
+lookup_table = function(
+    model_directory      = NULL
+) {
 
+  if(is.null(model_directory)) {
+    logger::log_error("\n\nmodel_directory input is NULL\nPlease enter a single row from the output dataframe created by using the parse_directory() function")
+  }
+
+  # Retrieve model year, version, and base folder path from single row of model_dirs() ouput
+  base_year     <- model_directory$base_year
+  model_version <- model_directory$model_version
+  base_folder   <- model_directory$base_folder
+
+  base_model_folder = paste(base_year, model_version)
+
+  # Base model year directory
+  base_model_dir <- grep(
+    base_model_folder,
+    list.files(base_folder, full.names = T),
+    value = TRUE
+  )
+
+  logger::log_info("\n\nReading From: {base_folder}/{base_model_folder}")
+
+  # Error if model folder not found
+  if(length(base_model_dir) == 0) {
+
+    logger::log_error("\n\nNo model folder matching: {base_model_folder}: \nAvaliable Model folders are: {paste(list.files(base_folder, full.names = F), collapse = ', ')}")
+
+    return(NULL)
+
+  }
+
+  # Paths to base model output sheet .txt files
+  base_output_paths <- list.files(
+    base_model_dir,
+    full.names = TRUE,
+    pattern    = "OUTPUT_SHEET.txt"
+  )
+
+  # Error, check if any output sheets were found in base_model_folder
+  if(length(base_output_paths) == 0) {
+
+    logger::log_error("\n\nNo model folder matching: {base_model_folder} ...\nAvaliable Model folders are: {paste(list.files(base_folder, full.names = F), collapse = ', ')}")
+
+    return(NULL)
+  }
+
+  # Paths to base model output sheet .txt files, extract file name
+  file_names <- data.frame(
+    file      = list.files(
+      base_model_dir,
+      full.names = FALSE,
+      pattern    = "OUTPUT_SHEET.txt"
+    ),
+    full_path = list.files(
+      base_model_dir,
+      full.names = TRUE,
+      pattern    = "OUTPUT_SHEET.txt"
+    )
+  ) %>%
+    dplyr::mutate(
+      output_sheet = dplyr::case_when(
+        grepl("ARKANSAS", file)     ~ "ARKANSAS",
+        grepl("SOUTH_PLATTE", file) ~ "SOUTH_PLATTE",
+        grepl("PWP", file)          ~ "PWP",
+        grepl("WILDHORSE", file)    ~ "WILDHORSE"
+      )
+    )
+
+  # get the unique models in folder and split into list of models
+  model_check <-
+    file_names %>%
+    dplyr::group_by(file) %>%
+    dplyr::mutate(
+      model_num  = sub(
+        "[.]$", "",
+        gsub(paste0(output_sheet, "_", "OUTPUT_SHEET.txt"), "", file)
+      )
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(model_num) %>%
+    dplyr::group_split()
+
+
+  # empty list to add models to
+  model_lst <- list()
+
+  # Loop through each model found in parsed directory dataframe
+  for (z in 1:length(model_check)) {
+
+    # paths to model output sheets
+    model_paths <- model_check[[z]]
+
+    logger::log_info("\n\nModel {z} of {length(model_check)}\nModel scenario: {model_paths$model_num[1]}")
+
+    # Empty list to add processed output sheets to at end of for loop
+    sheet_lst <- list()
+
+    # loop through the number of OUTPUT_SHEET.txt files in runs/<modelyear_modelversion> directory, clean and bind all rows
+    for (i in 1:nrow(model_paths)) {
+      # for (i in 1:length(base_output_paths)) {
+
+      logger::log_info("\n\nOutput sheet: {model_paths$output_sheet[i]}")
+
+      # # Read in output sheet for extracting names later on
+      out_tbl_names <- readr::read_tsv(
+        model_paths$full_path[i],
+        col_names      = FALSE,
+        show_col_types = FALSE,
+        progress       = FALSE
+      )
+
+      # # See if any problems in read in of data
+      prob <- readr::problems(out_tbl_names)
+
+      # Replace problem cases w/ recommended strings from problems() func
+      out_tbl_names <-
+        out_tbl_names %>%
+        replace_probs(df = ., prob_df = prob)
+
+      # number of rows to skip, when "Step" is seen in column 1, read in data after that
+      skiprows <- grep("Step", out_tbl_names$X1)
+
+      # read in dataset and get all data in each row in a single string
+      out_tbl <- readr::read_fwf(
+        file           = model_paths$full_path[i],
+        skip           = skiprows,
+        show_col_types = FALSE,
+        progress       = FALSE
+      ) %>%
+        dplyr::filter(!is.na(X1)) %>%
+        dplyr::select(X1)
+
+      # # column one has each row of data as a single string, split by tabs
+      line_lst <- out_tbl$X1[1:nrow(out_tbl)]
+
+      # split strings into columns by tab seperator and transform matrix into dataframe
+      out <- sapply(X = 1:length(line_lst), FUN = function(x){
+        tab_vect(line_lst[x])
+      }) %>%
+        t() %>%
+        as.data.frame()
+
+      # locate row that contains descriptions
+      desc_index   <- grep("Major", out_tbl_names$X1)
+
+      # locate row that contains parameters
+      param_index  <- grep("Time", out_tbl_names$X1)
+
+      # locate row that contains name
+      name_index   <- grep("Step", out_tbl_names$X1)
+
+      # descriptions for data in out
+      tbl_desc     <- out_tbl_names[desc_index, 1:ncol(out)]
+
+      # params for data in out
+      tbl_params   <- out_tbl_names[param_index, 1:ncol(out)]
+
+      # names for data in out
+      tbl_names    <- out_tbl_names[name_index, 1:ncol(out)]
+
+      # Loop through tbl_names and replace NA column headers w/ --> "empty_{column number}"
+      for (c in 1:ncol(tbl_names)) {
+
+        if(is.na(tbl_names[, c]) | tbl_names[, c] == "#N/A") {
+
+          # message(paste0("error in column ", c))
+          tbl_names[,c] <- paste0("empty_", c)
+
+        }
+
+      }
+
+      # Clean columns by removing special characters & whitespace, replacing w/ underscore
+      clean_cols <- gsub(
+        '([[:punct:]])|\\s+',
+        '_',
+        tolower(tbl_names)
+      )
+
+      # organize a lookup table for output sheet
+      lookup_df <- data.frame(
+        output_sheet   = model_paths$output_sheet[i],
+        model_scenario = model_paths$model_num[i],
+        orig_name      = unlist(as.vector(tbl_names[1, ])),
+        name           = clean_cols,
+        desc           = unlist(as.vector(tbl_desc[1, ])),
+        parameter      = unlist(as.vector(tbl_params[1, ]))
+      )
+
+      # add output sheet's lookup table to list of sheets
+      sheet_lst[[i]] <- lookup_df
+    }
+
+    # add all output sheets from model to list of models
+    model_lst[[z]] <- dplyr::bind_rows(sheet_lst)
+
+  }
+
+  # final row bind of all lookup tables across all models
+  lookup_df  <- dplyr::bind_rows(model_lst)
+
+  return(lookup_df)
+
+}
 #' Retrieve available columns in processed CRAM output sheets
 #' @description Helper function for obtaining variable names to use in plotting functions, plot_cram and plot_multiple_cram
 #' @param df data.frame

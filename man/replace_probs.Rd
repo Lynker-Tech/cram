@@ -4,12 +4,14 @@
 \alias{replace_probs}
 \title{Remove Problems}
 \usage{
-replace_probs(df, prob_df)
+replace_probs(df, prob_df, verbose = FALSE)
 }
 \arguments{
 \item{df}{original df}
 
 \item{prob_df}{problem df}
+
+\item{verbose}{logical, whether messages should output when function is run. Default is FALSE, no messages are printed}
 }
 \value{
 data.frame
